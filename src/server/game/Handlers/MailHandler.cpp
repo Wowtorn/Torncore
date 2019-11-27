@@ -24,10 +24,6 @@ bool WorldSession::CanOpenMailBox(uint64 guid)
     {
         return true;
     }
-    else if (IS_ITEM_GUID(guid))
-    {
-        return true;
-    }
     else if (IS_GAMEOBJECT_GUID(guid))
     {
         if (!_player->GetGameObjectIfCanInteractWith(guid, GAMEOBJECT_TYPE_MAILBOX))
