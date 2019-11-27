@@ -82,7 +82,9 @@
 #ifdef ELUNA
 #include "LuaEngine.h"
 #endif
-
+#ifdef MOD_AH_BOT
+#include "AuctionHouseBot.h"
+#endif
 ACE_Atomic_Op<ACE_Thread_Mutex, bool> World::m_stopEvent = false;
 uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
 uint32 World::m_worldLoopCounter = 0;
@@ -417,7 +419,7 @@ void World::LoadModuleConfigSettings()
         std::string conf_path = _CONF_DIR;
         std::string cfg_file = conf_path + "/" + configFile;
 
-#if AC_PLATFORM == AC_PLATFORM_WINDOWS
+#if PLATFORM == PLATFORM_WINDOWS
         cfg_file = configFile;
 #endif
         std::string cfg_def_file = cfg_file + ".dist";
@@ -1197,7 +1199,7 @@ void World::LoadConfigSettings(bool reload)
     if (dataPath.empty() || (dataPath.at(dataPath.length()-1) != '/' && dataPath.at(dataPath.length()-1) != '\\'))
         dataPath.push_back('/');
 
-#if AC_PLATFORM == AC_PLATFORM_UNIX || AC_PLATFORM == AC_PLATFORM_APPLE
+#if PLATFORM == PLATFORM_UNIX || PLATFORM == PLATFORM_APPLE
     if (dataPath[0] == '~')
     {
         const char* home = getenv("HOME");
@@ -1726,7 +1728,10 @@ void World::SetInitialWorldSettings()
     sAchievementMgr->LoadRewardLocales();
     sLog->outString("Loading Completed Achievements...");
     sAchievementMgr->LoadCompletedAchievements();
-
+#ifdef MOD_AH_BOT
+    // Initialize AHBot settings before deleting expired auctions due to AHBot hooks
+    auctionbot->InitializeConfiguration();
+#endif
     ///- Load dynamic data tables from the database
     sLog->outString("Loading Item Auctions...");
     sAuctionMgr->LoadAuctionItems();
@@ -1966,7 +1971,10 @@ void World::SetInitialWorldSettings()
     sEluna->RunScripts();
     sEluna->OnConfigLoad(false,false); // Must be done after Eluna is initialized and scripts have run.
 #endif
-
+#ifdef MOD_AH_BOT
+    sLog->outString("Initialize AuctionHouseBot...");
+    auctionbot->Initialize();
+#endif
     if (sWorld->getBoolConfig(CONFIG_PRELOAD_ALL_NON_INSTANCED_MAP_GRIDS))
     {
         sLog->outString("Loading all grids for all non-instanced maps...");
@@ -2153,6 +2161,9 @@ void World::Update(uint32 diff)
         // pussywizard: handle auctions when the timer has passed
         if (m_timers[WUPDATE_AUCTIONS].Passed())
         {
+#ifdef MOD_AH_BOT
+            auctionbot->Update();
+#endif
             m_timers[WUPDATE_AUCTIONS].Reset();
 
             // pussywizard: handle expired auctions, auctions expired when realm was offline are also handled here (not during loading when many required things aren't loaded yet)

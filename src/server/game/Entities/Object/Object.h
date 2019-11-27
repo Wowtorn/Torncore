@@ -796,8 +796,11 @@ class WorldObject : public Object, public WorldLocation
         virtual void SetPhaseMask(uint32 newPhaseMask, bool update);
         uint32 GetPhaseMask() const { return m_phaseMask; }
         bool InSamePhase(WorldObject const* obj) const { return InSamePhase(obj->GetPhaseMask()); }
-        bool InSamePhase(uint32 phasemask) const { return (GetPhaseMask() & phasemask); }
-
+               bool InSamePhase(uint32 phasemask) const {
+            if (GetZoneId() == 876)
+                return GetPhaseMask() == phasemask;
+            return (GetPhaseMask() & phasemask) != 0;
+        }
         virtual uint32 GetZoneId(bool forceRecalc = false) const;
         virtual uint32 GetAreaId(bool forceRecalc = false) const;
         virtual void GetZoneAndAreaId(uint32& zoneid, uint32& areaid, bool forceRecalc = false) const;
@@ -974,7 +977,7 @@ class WorldObject : public Object, public WorldLocation
 
         bool isActiveObject() const { return m_isActive; }
         void setActive(bool isActiveObject);
-        bool IsVisibilityOverridden() const { return m_isVisibilityDistanceOverride || m_isActive; }
+        bool IsVisibilityOverridden() const { return m_isVisibilityDistanceOverride; }
         void SetVisibilityDistanceOverride(bool isVisibilityDistanceOverride);
         void SetWorldObject(bool apply);
         bool IsPermanentWorldObject() const { return m_isWorldObject; }

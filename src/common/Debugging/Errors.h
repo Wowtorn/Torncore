@@ -29,7 +29,7 @@ namespace Trinity
 
 std::string GetDebugInfo();
 
-#if AC_COMPILER == AC_COMPILER_MICROSOFT
+#if COMPILER == COMPILER_MICROSOFT
 #define ASSERT_BEGIN __pragma(warning(push)) __pragma(warning(disable: 4127))
 #define ASSERT_END __pragma(warning(pop))
 #else
@@ -37,7 +37,7 @@ std::string GetDebugInfo();
 #define ASSERT_END
 #endif
 
-#if AC_PLATFORM == AC_PLATFORM_WINDOWS
+#if PLATFORM == PLATFORM_WINDOWS
 #define EXCEPTION_ASSERTION_FAILURE 0xC0000420L
 #endif
 
