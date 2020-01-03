@@ -676,6 +676,8 @@ Player::Player(WorldSession* session): Unit(true), m_mover(this)
 #pragma warning(default:4355)
 #endif
 
+    OldFactionID = 0;
+
     m_drwGUID = 0;
     m_speakTime = 0;
     m_speakCount = 0;
@@ -1218,6 +1220,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
 
     CheckAllAchievementCriteria();
 
+    OldFactionID = getFaction();
     return true;
 }
 
@@ -18431,6 +18434,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
         if (!HasAuraState((AuraStateType)m_spellInfo->CasterAuraState))
             aura->HandleAllEffects(itr->second, AURA_EFFECT_HANDLE_REAL, false);
     }
+
+    OldFactionID = getFaction();
     return true;
 }
 
